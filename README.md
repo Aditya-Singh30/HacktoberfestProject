@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 Boilermaker Map 
 
 An interactive campus map that helps Purdue students visualize their class schedules geographically.
@@ -23,3 +24,79 @@ Building Information: Select campus buildings and associate them with scheduled 
 Class Details: Click map markers to view course information and meeting times.
 
 Schedule Persistence: Save class schedules locally so they remain available between sessions.
+=======
+# SteamLine
+
+One dynamic timeline and map for your Brightspace schedule and Instagram club posts. **Gemma 4** extracts events locally through Ollama. Your day never leaves the laptop.
+
+Tan / orange / dark UI. Leaflet + OpenStreetMap (no map API key). FastAPI sits between the browser and Ollama so prompts, JSON schemas, and CORS stay in one place.
+
+## Why Gemma 4
+
+- **Structured output** — Ollama `format` forces a JSON schema so a small model returns events, not free text.
+- **Vision** — upload a flyer screenshot; Gemma reads title, time, and place from the image.
+- **Local and private** — Apache 2.0, on-device. Pitch line: *your schedule never leaves your machine.*
+- **Ask SteamLine** — a chat box with the day’s events in the prompt (“Can I make the 6pm club meeting after my lab?”).
+
+Instagram is an **ingestion** step (paste caption or screenshot). A production build would use an official feed or club-submitted posts. We do not scrape.
+
+## Stack
+
+| Layer | Choice |
+| --- | --- |
+| Frontend | React + Vite, Tailwind, react-leaflet |
+| Backend | FastAPI |
+| Model | `gemma4:e4b` via Ollama (`gemma4:e2b` if the laptop is slow) |
+| Storage | React state + `localStorage` |
+| Skills | `backend/skills/schedule-extractor.md`, `event-extractor.md` |
+
+## Run
+
+```bash
+# 1. Model
+ollama pull gemma4:e4b
+# fallback: ollama pull gemma4:e2b && export OLLAMA_MODEL=gemma4:e2b
+
+# 2. Backend
+cd backend
+python3 -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+uvicorn main:app --reload --port 8000
+
+# 3. Frontend
+cd frontend
+npm install
+npm run dev
+```
+
+Open http://localhost:5173
+
+If Wi-Fi or Gemma fails, click **Load demo data**. That path never calls the model.
+
+## Layout
+
+```
+backend/
+  main.py              # /extract/schedule, /extract/event, /ask
+  gemma.py             # Ollama chat + JSON schema + one retry
+  skills/              # short prompts for a small model
+frontend/src/
+  App.jsx
+  components/          # AddSchedule, AddEvent, Timeline, MapView, GapBadge
+  data/buildings.json  # Purdue codes + lat/lon
+```
+
+Walking time is straight-line distance ÷ **80 m/min**. Gap badges are green (`12 min gap, 5 min walk`) or red (`Tight: 4 min gap, 9 min walk`).
+
+## Demo script (~90s)
+
+1. Problem: schedule in Brightspace, events in Instagram, directions in Maps.
+2. Paste a schedule → Gemma fills editable cards → confirm → timeline sorts.
+3. Upload a flyer screenshot (or paste a caption) → event joins the line.
+4. Point at the red badge: “Tight: 4 min gap, 8 min walk” (Armstrong lab → Beering lecture).
+5. Close: “All of this runs on Gemma 4 on your laptop. Your schedule never leaves your machine.”
+
+## License
+
+MIT
+>>>>>>> 4e14101 (small changes)

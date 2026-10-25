@@ -1,0 +1,222 @@
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&display=swap");
+
+:root {
+  --ink: #1a1410;
+  --ink-soft: #2c241c;
+  --tan: #e8d5b7;
+  --tan-deep: #c4a574;
+  --orange: #e85d04;
+  --orange-hot: #f48c06;
+  --cream: #f6eee0;
+  --warn: #c1121f;
+  --ok: #3d6b4f;
+}
+
+html, body, [data-testid="stAppViewContainer"] {
+  background: var(--ink);
+  color: var(--cream);
+  font-family: "IBM Plex Sans", sans-serif;
+}
+
+[data-testid="stHeader"] {
+  background: transparent;
+}
+
+[data-testid="stSidebar"] {
+  background: var(--ink-soft);
+  border-right: 1px solid rgba(232, 213, 183, 0.12);
+}
+
+[data-testid="stSidebar"] * {
+  color: var(--cream);
+}
+
+h1, h2, h3, .steam-mark {
+  font-family: Fraunces, Georgia, serif;
+}
+
+.block-container {
+  padding-top: 1.4rem;
+  max-width: 1280px;
+}
+
+.hero {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 1.5rem;
+  margin-bottom: 1.25rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(232, 213, 183, 0.16);
+}
+
+.hero-kicker {
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-size: 0.72rem;
+  color: var(--tan-deep);
+  margin-bottom: 0.35rem;
+}
+
+.hero h1 {
+  font-size: 2.4rem;
+  line-height: 1.05;
+  margin: 0;
+  color: var(--tan);
+}
+
+.hero h1 span {
+  color: var(--orange-hot);
+}
+
+.hero p {
+  max-width: 36rem;
+  color: rgba(246, 238, 224, 0.78);
+  margin: 0.55rem 0 0;
+}
+
+.chip {
+  display: inline-block;
+  border: 1px solid var(--tan-deep);
+  color: var(--tan);
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+}
+
+.warning-card {
+  background: linear-gradient(90deg, rgba(193, 18, 31, 0.22), rgba(232, 93, 4, 0.08));
+  border: 1px solid rgba(244, 140, 6, 0.45);
+  border-left: 4px solid var(--orange);
+  padding: 0.85rem 1rem;
+  border-radius: 10px;
+  margin-bottom: 0.65rem;
+}
+
+.warning-card strong {
+  color: var(--orange-hot);
+}
+
+.ok-card {
+  background: rgba(61, 107, 79, 0.2);
+  border: 1px solid rgba(61, 107, 79, 0.45);
+  padding: 0.85rem 1rem;
+  border-radius: 10px;
+  margin-bottom: 0.65rem;
+}
+
+.timeline {
+  position: relative;
+  padding-left: 1.4rem;
+}
+
+.timeline::before {
+  content: "";
+  position: absolute;
+  left: 7px;
+  top: 8px;
+  bottom: 8px;
+  width: 2px;
+  background: linear-gradient(var(--orange), var(--tan-deep));
+}
+
+.t-item {
+  position: relative;
+  background: var(--ink-soft);
+  border: 1px solid rgba(232, 213, 183, 0.12);
+  border-radius: 12px;
+  padding: 0.85rem 1rem;
+  margin-bottom: 0.7rem;
+}
+
+.t-item.tight {
+  border-color: rgba(232, 93, 4, 0.7);
+  box-shadow: 0 0 0 1px rgba(232, 93, 4, 0.25);
+}
+
+.t-dot {
+  position: absolute;
+  left: -1.28rem;
+  top: 1.05rem;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--orange);
+  box-shadow: 0 0 0 4px rgba(232, 93, 4, 0.2);
+}
+
+.t-item.ok .t-dot {
+  background: var(--tan-deep);
+  box-shadow: 0 0 0 4px rgba(196, 165, 116, 0.18);
+}
+
+.t-time {
+  color: var(--orange-hot);
+  font-weight: 600;
+  font-size: 0.82rem;
+}
+
+.t-title {
+  font-family: Fraunces, Georgia, serif;
+  font-size: 1.15rem;
+  margin: 0.15rem 0 0.2rem;
+}
+
+.t-meta {
+  color: rgba(246, 238, 224, 0.7);
+  font-size: 0.86rem;
+}
+
+.badge {
+  display: inline-block;
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.15rem 0.45rem;
+  border-radius: 6px;
+  margin-left: 0.4rem;
+}
+
+.badge-class {
+  background: rgba(196, 165, 116, 0.18);
+  color: var(--tan);
+}
+
+.badge-ig {
+  background: rgba(232, 93, 4, 0.18);
+  color: var(--orange-hot);
+}
+
+.badge-tight {
+  background: rgba(193, 18, 31, 0.25);
+  color: #ffb4a2;
+}
+
+.section-label {
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-size: 0.72rem;
+  color: var(--tan-deep);
+  margin: 0 0 0.6rem;
+}
+
+div[data-testid="stFileUploader"] section {
+  background: var(--ink-soft);
+  border: 1px dashed var(--tan-deep);
+}
+
+.stButton > button {
+  background: var(--orange);
+  color: var(--ink);
+  border: 0;
+  font-weight: 600;
+}
+
+.stButton > button:hover {
+  background: var(--orange-hot);
+  color: var(--ink);
+}
+
+[data-testid="stCaption"] {
+  color: rgba(246, 238, 224, 0.55);
+}

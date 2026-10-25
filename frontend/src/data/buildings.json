@@ -1,0 +1,18 @@
+[
+  {"code": "ARMS", "name": "Armstrong Hall of Engineering", "lat": 40.43105, "lon": -86.91472},
+  {"code": "BRNG", "name": "Beering Hall of Liberal Arts and Education", "lat": 40.42548, "lon": -86.91628},
+  {"code": "CL50", "name": "Class of 1950 Lecture Hall", "lat": 40.42682, "lon": -86.91495},
+  {"code": "EE", "name": "Electrical Engineering Building", "lat": 40.42878, "lon": -86.91185},
+  {"code": "HAMP", "name": "Hampton Hall of Civil Engineering", "lat": 40.42852, "lon": -86.91280},
+  {"code": "KRAN", "name": "Krannert Building", "lat": 40.42372, "lon": -86.91082},
+  {"code": "LWSN", "name": "Lawson Computer Science Building", "lat": 40.42762, "lon": -86.91690},
+  {"code": "MATH", "name": "Mathematical Sciences Building", "lat": 40.42612, "lon": -86.91452},
+  {"code": "MSEE", "name": "Materials and Electrical Engineering", "lat": 40.42918, "lon": -86.91285},
+  {"code": "PHYS", "name": "Physics Building", "lat": 40.42635, "lon": -86.91352},
+  {"code": "PMU", "name": "Purdue Memorial Union", "lat": 40.42470, "lon": -86.91095},
+  {"code": "RAWLS", "name": "Rawls Hall", "lat": 40.42358, "lon": -86.90948},
+  {"code": "STEW", "name": "Stewart Center", "lat": 40.42495, "lon": -86.91248},
+  {"code": "WALC", "name": "Wilmeth Active Learning Center", "lat": 40.42735, "lon": -86.91328},
+  {"code": "WTHR", "name": "Wetherill Laboratory of Chemistry", "lat": 40.42655, "lon": -86.91385},
+  {"code": "YONG", "name": "Young Hall", "lat": 40.42410, "lon": -86.91020}
+]

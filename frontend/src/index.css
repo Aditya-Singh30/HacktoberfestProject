@@ -1,0 +1,44 @@
+@import "tailwindcss";
+@import "leaflet/dist/leaflet.css";
+
+@theme {
+  --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: Fraunces, Georgia, serif;
+  --color-ink: #1a1410;
+  --color-ink-soft: #2c241c;
+  --color-tan: #e8d5b7;
+  --color-tan-deep: #c4a574;
+  --color-orange: #e85d04;
+  --color-orange-hot: #f48c06;
+  --color-cream: #f6eee0;
+  --color-warn: #c1121f;
+  --color-ok: #3d6b4f;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+  background: var(--color-ink);
+  color: var(--color-cream);
+}
+
+body {
+  font-family: var(--font-sans);
+}
+
+.leaflet-container {
+  background: #1f1914;
+  font-family: var(--font-sans);
+}
+
+.leaflet-popup-content-wrapper,
+.leaflet-popup-tip {
+  background: #2c241c;
+  color: #f6eee0;
+}
+
+.leaflet-control-attribution {
+  background: rgba(26, 20, 16, 0.8) !important;
+  color: #c4a574 !important;
+}
