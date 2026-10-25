@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Boilermaker Live | Smart Nav</title>
+
+<!-- Leaflet Core -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+
+<!-- Leaflet Routing Machine -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet-routing-machine/3.2.12/leaflet-routing-machine.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-routing-machine/3.2.12/leaflet-routing-machine.min.js"></script>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Outfit:wght@500;700&display=swap" rel="stylesheet">
+
+<style>
+  :root { 
+    --gold: #CEB888; --gold-dark: #b8a175; --black: #1b1b1b; --bg: #f8f9fa; 
+    --card: #ffffff; --text: #2d3436; --text-light: #636e72; --border: #e0e0e0; --shadow: 0 4px 12px rgba(0,0,0,0.08);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #121212; --card: #1e1e1e; --text: #f5f5f5; --text-light: #b0b0b0; --border: #333; --shadow: 0 4px 12px rgba(0,0,0,0.4); }
+  }
+
+  * { box-sizing: border-box; transition: all 0.2s ease; }
+  body { margin:0; font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); display: flex; height: 100vh; overflow: hidden; }
+  
+  aside { 
+    width: 380px; max-width: 400px; height: 100vh; overflow-y: auto; padding: 24px; 
+    border-right: 1px solid var(--border); background: var(--card); z-index: 1001; box-shadow: 2px 0 10px rgba(0,0,0,0.05);
+  }
+  
+  header { margin-bottom: 24px; }
+  h1 { font-family: 'Outfit', sans-serif; font-size: 24px; margin: 0; display: flex; align-items: center; gap: 8px; }
+  h1 span { background: var(--gold); color: var(--black); padding: 2px 8px; border-radius: 4px; }
+  .sub { font-size: 14px; color: var(--text-light); margin: 4px 0 0; }
+
+  .section-card { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 20px; box-shadow: var(--shadow); }
+  .section-title { font-family: 'Outfit', sans-serif; font-size: 15px; font-weight: 700; margin: 0 0 12px 0; display: flex; align-items: center; gap: 8px; color: var(--gold-dark); }
+
+  label { display: block; font-size: 12px; font-weight: 600; margin: 10px 0 4px; color: var(--text-light); text-transform: uppercase; }
+  input, select { width: 100%; padding: 10px; font-family: inherit; font-size: 14px; border: 1px solid var(--border); border-radius: 8px; background: var(--card); color: var(--text); }
+  
+  .row { display: flex; gap: 8px; }
+  .row > div { flex: 1; }
+
+  button { cursor: pointer; font-family: 'Outfit', sans-serif; font-weight: 600; border-radius: 8px; border: none; }
+  .btn-primary { width: 100%; padding: 12px; margin-top: 12px; background: var(--black); color: var(--gold); }
+  .btn-primary:hover { background: #333; transform: translateY(-1px); }
+  .btn-accent { width: 100%; padding: 12px; margin-top: 12px; background: var(--gold); color: var(--black); border: 2px solid var(--black); }
+  .btn-accent:hover { background: var(--gold-dark); transform: translateY(-1px); }
+  .btn-small { padding: 8px 12px; background: var(--border); color: var(--text); font-size: 12px; }
+
+  .days-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-top: 4px; }
+  .day-opt { text-align: center; padding: 8px 0; border: 1px solid var(--border); border-radius: 6px; cursor: pointer; font-size: 13px; background: var(--card); }
+  .day-opt input { display: none; }
+  .day-opt:has(input:checked) { background: var(--gold); color: var(--black); border-color: var(--gold); font-weight: 700; }
+
+  .class-item { background: var(--card); border: 1px solid var(--border); border-left: 4px solid var(--gold); border-radius: 8px; padding: 12px; margin-top: 10px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.04); }
+  .class-info b { display: block; font-size: 14px; }
+  .class-info small { font-size: 12px; color: var(--text-light); }
+  .btn-del { background: transparent; color: #ff7675; font-size: 12px; padding: 4px 8px; }
+
+  #map { flex: 1; position: relative; background: #e5e3df; }
+  .campus-label { background: var(--black); color: var(--gold); border: 0; font: 600 11px 'Inter', sans-serif; padding: 2px 6px; border-radius: 4px; }
+  .campus-label:before { display: none; }
+
+  .marker-home { background: #ff7675; border: 2px solid #fff; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); width: 20px; height: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.3); }
+  .marker-class { background: var(--gold); border: 2px solid var(--black); border-radius: 50% 50% 50% 0; transform: rotate(-45deg); width: 20px; height: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.3); }
+  
+  .nav-arrow { 
+    width: 0; height: 0; 
+    border-left: 12px solid transparent; 
+    border-right: 12px solid transparent; 
+    border-bottom: 24px solid #4285F4; 
+    filter: drop-shadow(0 2px 2px rgba(0,0,0,0.3));
+  }
+
+  .leaflet-routing-container { display: none !important; }
+</style>
+</head>
+<body>
+
+<aside>
+  <header>
+    <h1><span>Boilermaker</span> Live</h1>
+    <p class="sub">Your campus day, automated.</p>
+  </header>
+
+  <div class="section-card">
+    <div class="section-title">🏠 Home / Dorm</div>
+    <div style="display:flex; gap:6px">
+      <input id="homeSearch" placeholder="Search for apt or dorm...">
+      <button class="btn-small" id="setHomeBtn">Find</button>
+    </div>
+  </div>
+
+  <div class="section-card">
+    <div class="section-title">📚 Add a Class</div>
+    <label>Course Name</label>
+    <input id="name" placeholder="e.g. CS 18000">
+    <label>Building</label>
+    <select id="building"></select>
+    <label>Days</label>
+    <div class="days-grid" id="days"></div>
+    <div class="row">
+      <div><label>Start</label><input id="start" type="time" value="09:30"></div>
+      <div><label>End</label><input id="end" type="time" value="10:20"></div>
+    </div>
+    <button class="btn-primary" id="addBtn">Add to Schedule</button>
+  </div>
+
+  <div class="section-card" style="border: 2px solid var(--gold);">
+    <div class="section-title">🗺️ Smart Routing</div>
+    <button class="btn-accent" id="liveRouteBtn">✨ Route Me NOW</button>
+    <label style="margin-top:15px">Or pick a day:</label>
+    <div class="days-grid" id="routeDays"></div>
+    <button class="btn-primary" style="background: var(--gold); color: var(--black);" id="generateRouteBtn">Manual Route</button>
+    <button class="btn-small" style="width:100%; margin-top:8px" id="clearRouteBtn">Clear Map</button>
+  </div>
+
+  <div class="section-title" style="margin-left: 4px;">📅 Your Schedule</div>
+  <div id="list"></div>
+</aside>
+
+<div id="map"></div>
+
+<script>
+const GEOAPIFY_KEY = "cb3405adfed24ae48129ae72027c9b2f"; 
+
+const BUILDINGS = {
+  "Lawson Computer Science (LWSN)": [40.4278, -86.9169],
+  "Wilmeth Active Learning Center (WALC)": [40.4272, -86.9140],
+  "Hicks Undergraduate Library (HIKS)": [40.4254, -86.9140],
+  "Armstrong Hall (ARMS)": [40.4300, -86.9147],
+  "Elliott Hall of Music (ELLT)": [40.4262, -86.9127],
+  "Class of 1950 Lecture Hall (CL50)": [40.4284, -86.9141],
+  "Beering Hall (BRNG)": [40.4247, -86.9144],
+  "Forney Hall of Chemical Engineering (FRNY)": [40.4281, -86.9135],
+  "Mathematical Sciences Building (MATH)": [40.4271, -86.9150],
+  "Wetherill Chemistry (WTHR)": [40.4271, -86.9120],
+  "Physics Building (PHYS)": [40.4306, -86.9135],
+  "Purdue Memorial Union (PMU)": [40.4249, -86.9114],
+  "Stewart Center (STEW)": [40.4259, -86.9121],
+  "Mackey Arena (MACK)": [40.4339, -86.9158],
+  "Ross-Ade Stadium (ROSS)": [40.4346, -86.9186]
+};
+const DAYS = ["M","T","W","Th","F"];
+const DAY_MAP = {1: 'M', 2: 'T', 3: 'W', 4: 'Th', 5: 'F'};
+
+const map = L.map("map").setView([40.4259, -86.9140], 16);
+
+// --- SMART TILE LOADING SYSTEM ---
+let currentTileLayer;
+
+function loadTiles() {
+  // Try Geoapify first
+  currentTileLayer = L.tileLayer(`https://maps.geoapify.com/v1/tile/osm-autobright/{z}/{x}/{y}.png?apiKey=${GEOAPIFY_KEY}`, {
+    maxZoom: 19, attribution: '© Geoapify'
+  }).addTo(map);
+
+  // If Geoapify fails (tile error), switch to Esri instantly
+  currentTileLayer.on('tileerror', function() {
+    console.warn("Geoapify tiles failed. Switching to Esri fallback...");
+    map.removeLayer(currentTileLayer);
+    currentTileLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
+      maxZoom: 19, attribution: '© Esri'
+    }).addTo(map);
+  });
+}
+loadTiles();
+
+const campusGroup = L.layerGroup().addTo(map);
+const classMarkers = L.layerGroup().addTo(map);
+let homeMarker = null;
+let activeRoute = null;
+let navArrowMarker = null;
+
+const homeIcon = L.divIcon({ className: "", html: '<div class="marker-home"></div>', iconSize: [20, 20], iconAnchor: [10, 20] });
+const classIcon = L.divIcon({ className: "", html: '<div class="marker-class"></div>', iconSize: [20, 20], iconAnchor: [10, 20] });
+
+let classes = JSON.parse(localStorage.getItem("boilermaker-classes") || "[]");
+let homeLoc = JSON.parse(localStorage.getItem("boilermaker-home") || "null");
+
+function save() {
+  localStorage.setItem("boilermaker-classes", JSON.stringify(classes));
+  localStorage.setItem("boilermaker-home", JSON.stringify(homeLoc));
+}
+
+function drawCampus() {
+  Object.entries(BUILDINGS).forEach(([name, pos]) => {
+    const label = name.match(/\(([^)]+)\)/)?.[1] || name;
+    L.circleMarker(pos, { radius: 5, color: "#1b1b1b", weight: 2, fillColor: "#CEB888", fillOpacity: 1 })
+      .bindTooltip(label, { permanent: true, direction: "right", offset: [8, 0], className: "campus-label" })
+      .on("click", () => { bSel.value = name; })
+      .addTo(campusGroup);
+  });
+}
+
+function render() {
+  classMarkers.clearLayers();
+  const list = document.getElementById("list");
+  list.innerHTML = classes.length ? "" : '<p style="text-align:center; color:var(--text-light); font-size:13px; margin-top:20px;">No classes added yet.</p>';
+  
+  classes.forEach((c, i) => {
+    const pos = c.pos || BUILDINGS[c.building];
+    L.marker(pos, { icon: classIcon }).bindPopup(`<b>${c.name}</b><br>${c.building}`).addTo(classMarkers);
+    const item = document.createElement("div");
+    item.className = "class-item";
+    item.innerHTML = `<div class="class-info"><b>${c.name}</b><small>${c.building} • ${c.days.join(",")}</small></div><button class="btn-del" onclick="deleteClass(${i}, event)">✕</button>`;
+    item.onclick = () => { map.setView(pos, 18); };
+    list.appendChild(item);
+  });
+
+  if (homeMarker) map.removeLayer(homeMarker);
+  if (homeLoc) homeMarker = L.marker(homeLoc, { icon: homeIcon }).bindPopup("<b>My Home</b>").addTo(map);
+}
+
+window.deleteClass = (i, e) => {
+  e.stopPropagation();
+  classes.splice(i, 1);
+  save(); render();
+};
+
+async function searchHome() {
+  const q = document.getElementById("homeSearch").value.trim();
+  if (!q) return;
+  try {
+    const params = new URLSearchParams({ text: q + ", West Lafayette, Indiana", format: "json", apiKey: GEOAPIFY_KEY });
+    const res = await fetch(`https://api.geoapify.com/v1/geocode/search?${params}`);
+    const data = await res.json();
+    if (data.results && data.results.length > 0) {
+      const result = data.results[0];
+      homeLoc = [parseFloat(result.lat), parseFloat(result.lon)];
+      save(); render();
+      map.setView(homeLoc, 17);
+    } else {
+      alert("Location not found.");
+    }
+  } catch (e) { alert("Search failed."); }
+}
+
+map.on("click", (e) => {
+  if(confirm("Set this location as your Home/Dorm?")) {
+    homeLoc = [e.latlng.lat, e.latlng.lng];
+    save(); render();
+  }
+});
+
+function updateNavArrow(startPoint, secondPoint) {
+  if (navArrowMarker) map.removeLayer(navArrowMarker);
+  const lat1 = startPoint.lat, lon1 = startPoint.lng;
+  const lat2 = secondPoint.lat, lon2 = secondPoint.lng;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const y = Math.sin(dLon) * Math.cos(lat2 * Math.PI / 180);
+  const x = Math.cos(lat1 * Math.PI / 180) * Math.sin(lat2 * Math.PI / 180) - 
+            Math.sin(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.cos(dLon);
+  const bearing = Math.atan2(y, x) * 180 / Math.PI;
+
+  const arrowIcon = L.divIcon({
+    className: "",
+    html: `<div class="nav-arrow" style="transform: rotate(${bearing}deg)"></div>`,
+    iconSize: [24, 24],
+    iconAnchor: [12, 12]
+  });
+
+  navArrowMarker = L.marker(startPoint, { icon: arrowIcon, zIndexOffset: 1000 }).addTo(map);
+}
+
+function createRoute(waypoints, message) {
+  if (activeRoute) map.removeControl(activeRoute);
+  if (navArrowMarker) map.removeLayer(navArrowMarker);
+  alert(message);
+  activeRoute = L.Routing.control({
+    waypoints: waypoints,
+    lineOptions: { styles: [{ color: '#CEB888', opacity: 0.9, weight: 8 }] },
+    createMarker: () => null,
+    routeWhileDragging: false,
+    addWaypoints: false,
+    draggableWaypoints: false,
+    fitMaxZoom: 17
+  }).on('routesfound', function(e) {
+    const route = e.routes[0];
+    const coords = route.coordinates;
+    if (coords.length >= 2) updateNavArrow(coords[0], coords[1]);
+  }).addTo(map);
+}
+
+function generateLiveRoute() {
+  if (!homeLoc) return alert("Please set your Home/Dorm location first!");
+  const now = new Date();
+  const currentDayNum = now.getDay();
+  const todayLabel = DAY_MAP[currentDayNum];
+  if (!todayLabel) return alert("It's the weekend! No classes to route today. Enjoy your break! 🎓");
+  const currentTimeStr = now.toTimeString().slice(0, 5); 
+  const todayClasses = classes.filter(c => c.days.includes(todayLabel)).sort((a, b) => a.start.localeCompare(b.start));
+  if (todayClasses.length === 0) return alert(`You have no classes scheduled for today (${todayLabel}).`);
+
+  let startPoint = L.latLng(homeLoc[0], homeLoc[1]);
+  let endPoint = null;
+  let msg = "";
+
+  const firstClass = todayClasses[0];
+  const lastClass = todayClasses[todayClasses.length - 1];
+
+  if (currentTimeStr < firstClass.start) {
+    startPoint = L.latLng(homeLoc[0], homeLoc[1]);
+    endPoint = L.latLng(firstClass.pos[0], firstClass.pos[1]);
+    msg = `It's ${currentTimeStr}. Heading to your first class: ${firstClass.name} at ${firstClass.start}.`;
+  } else if (currentTimeStr > lastClass.end) {
+    startPoint = L.latLng(lastClass.pos[0], lastClass.pos[1]);
+    endPoint = L.latLng(homeLoc[0], homeLoc[1]);
+    msg = `Your day is done! Routing you back home.`;
+  } else {
+    let currentClassIdx = todayClasses.findIndex(c => currentTimeStr >= c.start && currentTimeStr <= c.end);
+    if (currentClassIdx !== -1) {
+      const current = todayClasses[currentClassIdx];
+      const next = todayClasses[currentClassIdx + 1];
+      startPoint = L.latLng(current.pos[0], current.pos[1]);
+      endPoint = next ? L.latLng(next.pos[0], next.pos[1]) : L.latLng(homeLoc[0], homeLoc[1]);
+      msg = `You're currently in ${current.name}. Routing to your next stop.`;
+    } else {
+      const prevClass = [...todayClasses].reverse().find(c => c.end <= currentTimeStr);
+      const nextClass = todayClasses.find(c => c.start >= currentTimeStr);
+      startPoint = prevClass ? L.latLng(prevClass.pos[0], prevClass.pos[1]) : L.latLng(homeLoc[0], homeLoc[1]);
+      endPoint = nextClass ? L.latLng(nextClass.pos[0], nextClass.pos[1]) : L.latLng(homeLoc[0], homeLoc[1]);
+      msg = `Between classes. Heading toward ${nextClass ? nextClass.name : 'Home'}.`;
+    }
+  }
+  createRoute([startPoint, endPoint], msg);
+}
+
+function generateManualRoute() {
+  if (!homeLoc) return alert("Please set your Home/Dorm location first!");
+  const selectedDay = [...document.querySelectorAll("#routeDays input:checked")].map(i => i.value)[0];
+  if (!selectedDay) return alert("Please select a day to route!");
+  const dayClasses = classes.filter(c => c.days.includes(selectedDay)).sort((a, b) => a.start.localeCompare(b.start));
+  if (dayClasses.length === 0) return alert(`No classes for ${selectedDay}.`);
+  const waypoints = [L.latLng(homeLoc[0], homeLoc[1])];
+  dayClasses.forEach(c => waypoints.push(L.latLng(c.pos[0], c.pos[1])));
+  waypoints.push(L.latLng(homeLoc[0], homeLoc[1]));
+  createRoute(waypoints, `Routing your full ${selectedDay} schedule.`);
+}
+
+const bSel = document.getElementById("building");
+Object.keys(BUILDINGS).forEach(b => bSel.add(new Option(b, b)));
+const daysEl = document.getElementById("days");
+DAYS.forEach(d => daysEl.insertAdjacentHTML("beforeend", `<label class="day-opt"><input type="checkbox" value="${d}">${d}</label>`));
+const routeDaysEl = document.getElementById("routeDays");
+DAYS.forEach(d => routeDaysEl.insertAdjacentHTML("beforeend", `<label class="day-opt"><input type="radio" name="routeDay" value="${d}">${d}</label>`));
+
+document.getElementById("setHomeBtn").onclick = searchHome;
+document.getElementById("liveRouteBtn").onclick = generateLiveRoute;
+document.getElementById("generateRouteBtn").onclick = generateManualRoute;
+document.getElementById("clearRouteBtn").onclick = () => {
+  if (activeRoute) { map.removeControl(activeRoute); activeRoute = null; }
+  if (navArrowMarker) map.removeLayer(navArrowMarker);
+};
+
+document.getElementById("addBtn").onclick = () => {
+  const name = document.getElementById("name").value.trim();
+  const days = [...daysEl.querySelectorAll("input:checked")].map(i => i.value);
+  if (!name || !days.length) return alert("Please enter course name and pick a day.");
+  classes.push({ name, building: bSel.value, pos: BUILDINGS[bSel.value], days, start: document.getElementById("start").value, end: document.getElementById("end").value });
+  save(); render();
+  document.getElementById("name").value = "";
+};
+
+drawCampus();
+render();
+</script>
+</body>
+</html>
