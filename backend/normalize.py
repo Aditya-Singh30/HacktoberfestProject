@@ -9,14 +9,19 @@ DAY_ALIASES = {
     "m": "Mon", "mon": "Mon", "monday": "Mon",
     "t": "Tue", "tu": "Tue", "tue": "Tue", "tues": "Tue", "tuesday": "Tue",
     "w": "Wed", "wed": "Wed", "wednesday": "Wed",
-    "r": "Thu", "thu": "Thu", "thur": "Thu", "thurs": "Thu", "thursday": "Thu",
+    "r": "Thu", "th": "Thu", "thu": "Thu", "thur": "Thu", "thurs": "Thu", "thursday": "Thu",
     "f": "Fri", "fri": "Fri", "friday": "Fri",
-    "sat": "Sat", "saturday": "Sat", "sun": "Sun", "sunday": "Sun",
+    "sat": "Sat", "sa": "Sat", "saturday": "Sat", "sun": "Sun", "su": "Sun", "sunday": "Sun",
 }
 WEEKDAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+_MONTHS = {name: index for index, name in enumerate(["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"], 1)}
 _MERIDIEM = re.compile(r"(\d{1,2})(?::(\d{2}))?\s*([ap])\.?\s*m?\.?", re.I)
 _H24 = re.compile(r"(\d{1,2}):(\d{2})")
 _BARE_HOUR = re.compile(r"^\s*(\d{1,2})\s*$")
+_FUZZY_DATE = re.compile(
+    r"\b(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)\s+(\d{1,2})(?:st|nd|rd|th)?(?:,?\s*((?:19|20)\d{2}))?",
+    re.I,
+)
 
 
 def to_hhmm(value: Any) -> str | None:
@@ -42,6 +47,15 @@ def to_hhmm(value: Any) -> str | None:
     return f"{hour:02d}:{minute:02d}"
 
 
+def pair_times(start_raw: Any, end_raw: Any) -> tuple[str | None, str | None]:
+    start_s, end_s = str(start_raw or "").strip(), str(end_raw or "").strip()
+    if re.search(r"[p]\.?\s*m", end_s, re.I) and not re.search(r"[ap]\.?\s*m", start_s, re.I):
+        start_s = f"{start_s} PM"
+    elif re.search(r"[a]\.?\s*m", end_s, re.I) and not re.search(r"[ap]\.?\s*m", start_s, re.I):
+        start_s = f"{start_s} AM"
+    return to_hhmm(start_s), to_hhmm(end_s)
+
+
 def _add_minutes(hhmm: str, minutes: int) -> str:
     hour, minute = map(int, hhmm.split(":"))
     total = min(hour * 60 + minute + minutes, 23 * 60 + 59)
@@ -49,21 +63,47 @@ def _add_minutes(hhmm: str, minutes: int) -> str:
 
 
 def to_iso_date(value: Any, fallback: str) -> str:
+    text = str(value or "").strip()
     try:
-        parsed = dt.date.fromisoformat(str(value).strip()[:10])
+        parsed = dt.date.fromisoformat(text[:10])
         base = dt.date.fromisoformat(fallback)
         if abs((parsed - base).days) <= 370:
             return parsed.isoformat()
     except (ValueError, TypeError):
         pass
+    match = _FUZZY_DATE.search(text)
+    if match:
+        month = _MONTHS[match.group(1)[:3].lower()]
+        year = int(match.group(3) or fallback[:4])
+        try:
+            return dt.date(year, month, int(match.group(2))).isoformat()
+        except ValueError:
+            pass
+    if re.search(r"\b(tonight|today)\b", text, re.I):
+        return fallback
+    if re.search(r"\btomorrow\b", text, re.I):
+        try:
+            return (dt.date.fromisoformat(fallback) + dt.timedelta(days=1)).isoformat()
+        except ValueError:
+            return fallback
     return fallback
 
 
 def normalize_days(value: Any) -> list[str]:
-    values = re.split(r"[,/ ]+", value) if isinstance(value, str) else value or []
+    if isinstance(value, str):
+        compact = re.sub(r"[^A-Za-z]", "", value)
+        if compact.lower() in {"tth", "tr", "tuth"}:
+            values = ["Tue", "Thu"]
+        else:
+            values = re.split(r"[,/ \-]+", value)
+    else:
+        values = value or []
     output: list[str] = []
     for item in values:
         key = str(item).strip().lower().rstrip(".")
+        if key in {"tu", "tue", "tues", "tuesday"}:
+            output.append("Tue")
+            continue
         if key in DAY_ALIASES:
             output.append(DAY_ALIASES[key])
         elif len(key) > 1 and all(char in "mtwrf" for char in key):
@@ -85,6 +125,10 @@ def match_building(value: Any, buildings: list[dict[str, Any]]) -> str:
         name = str(building.get("name", "")).lower()
         if lower and name and (lower in name or name in lower):
             return building["code"]
+    aliases = (("lawson", "LWSN"), ("beering", "BRNG"), ("armstrong", "ARMS"), ("stewart", "STEW"), ("memorial union", "PMU"), ("wilmeth", "WALC"))
+    for needle, code in aliases:
+        if needle in lower:
+            return code
     return "unknown"
 
 
@@ -93,22 +137,20 @@ def normalize_events(raw: dict[str, Any], *, day: str, source: str, buildings: l
     warnings: list[str] = []
     items = raw.get("events") if isinstance(raw, dict) else None
     if not isinstance(items, list):
-        return [], ["Gemma's answer had no 'events' list."]
+        return [], ["Extractor returned no 'events' list."]
     for item in items:
         if not isinstance(item, dict):
             continue
         title = str(item.get("title") or "").strip()
         if not title:
             continue
-        if weekday_filter:
-            days = normalize_days(item.get("days"))
-            if days and weekday_filter not in days:
-                continue
-        start = to_hhmm(item.get("start"))
+        days = normalize_days(item.get("days"))
+        if weekday_filter and days and weekday_filter not in days:
+            continue
+        start, end = pair_times(item.get("start"), item.get("end"))
         if not start:
             warnings.append(f"Skipped '{title}': no readable start time.")
             continue
-        end = to_hhmm(item.get("end"))
         if not end or end <= start:
             end = _add_minutes(start, default_minutes)
         location = str(item.get("location") or item.get("building") or "").strip()
@@ -122,6 +164,7 @@ def normalize_events(raw: dict[str, Any], *, day: str, source: str, buildings: l
             "date": day if weekday_filter else to_iso_date(item.get("date"), day),
             "start": start,
             "end": end,
+            "days": days,
         })
     events.sort(key=lambda event: (event["date"], event["start"]))
     return events, warnings

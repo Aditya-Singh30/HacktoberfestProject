@@ -1,128 +1,112 @@
-API_KEY = "0cfd16273a174c60b80a4dcd9c8b4179"
+"""Geoapify geocoding and walking routes for Purdue campus.
 
+Used by the FastAPI backend (`/geocode`, `/route`) and as a small CLI.
+"""
+from __future__ import annotations
 
-import requests
-import folium
-import webbrowser
 import os
 
+import requests
+
+API_KEY = os.getenv("GEOAPIFY_API_KEY", "0cfd16273a174c60b80a4dcd9c8b4179")
 GEOCODING_URL = "https://api.geoapify.com/v1/geocode/search"
 ROUTING_URL = "https://api.geoapify.com/v1/routing"
+CAMPUS_BIAS = "proximity:-86.9140,40.4237"
+CAMPUS_FILTER = "rect:-86.96,40.415,-86.88,40.445"
 
 
-def geocode(location) -> dict:
+def geocode(location: str, *, campus: bool = True) -> dict:
+    text = str(location or "").strip()
+    if not text:
+        raise ValueError("Enter a place to search.")
+    if "west lafayette" not in text.lower() and "purdue" not in text.lower():
+        text = f"{text}, Purdue University, West Lafayette, Indiana"
+
     params = {
-        "text": location,
+        "text": text,
         "format": "json",
         "limit": 1,
-        "bias": "proximity:-86.9140,40.4237",
-        "apiKey": API_KEY
+        "bias": CAMPUS_BIAS,
+        "apiKey": API_KEY,
     }
+    if campus:
+        params["filter"] = CAMPUS_FILTER
 
-    response = requests.get(
-        GEOCODING_URL, params=params, timeout=10
-    )
+    response = requests.get(GEOCODING_URL, params=params, timeout=10)
     response.raise_for_status()
-
-    results = response.json()["results"]
-
+    results = response.json().get("results") or []
+    if not results and campus:
+        params.pop("filter", None)
+        response = requests.get(GEOCODING_URL, params=params, timeout=10)
+        response.raise_for_status()
+        results = response.json().get("results") or []
     if not results:
         raise ValueError(f"Location not found: {location}")
 
     place = results[0]
-    print(f"Place found: {place['formatted']}")
-
     return {
-        "name": place["formatted"],
+        "name": place.get("formatted") or text,
         "lat": float(place["lat"]),
-        "lon": float(place["lon"])
+        "lon": float(place["lon"]),
     }
 
 
-def routePlaces(start, end):
+def _leaflet_coords(geometry: dict) -> list[list[float]]:
+    kind = geometry.get("type")
+    raw = geometry.get("coordinates") or []
+    if kind == "LineString":
+        return [[lat, lon] for lon, lat in raw]
+    if kind == "MultiLineString":
+        coords: list[list[float]] = []
+        for line in raw:
+            coords.extend([lat, lon] for lon, lat in line)
+        return coords
+    return []
+
+
+def route_waypoints(points: list[dict]) -> dict:
+    if len(points) < 2:
+        raise ValueError("Need at least two waypoints for a walking route.")
     params = {
-        "waypoints": (
-            f"{start['lat']},{start['lon']}|"
-            f"{end['lat']},{end['lon']}"
-        ),
+        "waypoints": "|".join(f"{point['lat']},{point['lon']}" for point in points),
         "mode": "walk",
         "format": "geojson",
-        "apiKey": API_KEY
+        "apiKey": API_KEY,
     }
-
-    response = requests.get(
-        ROUTING_URL, params=params, timeout=20
-    )
+    response = requests.get(ROUTING_URL, params=params, timeout=20)
     response.raise_for_status()
-
-    features = response.json().get("features", [])
-
+    features = response.json().get("features") or []
     if not features:
         raise ValueError("Geoapify did not return a walking route.")
 
     route = features[0]
-
-    # campus_map = folium.Map(
-    #     location=[
-    #         (start["lat"] + end["lat"]) / 2,
-    #         (start["lon"] + end["lon"]) / 2
-    #     ],
-    #     zoom_start=15,
-    #     tiles="OpenStreetMap"
-    # )
-
-    # folium.Marker(
-    #     [start["lat"], start["lon"]],
-    #     tooltip="Start",
-    #     popup=start["name"]
-    # ).add_to(campus_map)
-
-    # folium.Marker(
-    #     [end["lat"], end["lon"]],
-    #     tooltip="Destination",
-    #     popup=end["name"]
-    # ).add_to(campus_map)
-
-    # folium.GeoJson(
-    #     route,
-    #     style_function=lambda feature: {
-    #         "color": "blue",
-    #         "weight": 5
-    #     }
-    # ).add_to(campus_map)
-
-    # Fit the map around the route
-    # coordinates = route["geometry"]["coordinates"]
-
-    # bounds = [
-    #     [coordinate[1], coordinate[0]]
-    #     for coordinate in coordinates
-    # ]
-    
-    # campus_map.fit_bounds(bounds)
-
-    # filename = os.path.abspath("walking_route.html")
-    # campus_map.save(filename)
-    # print(f"Map saved to: {filename}")
-
-    # webbrowser.open("file://" + filename)
+    props = route.get("properties") or {}
+    coordinates = _leaflet_coords(route.get("geometry") or {})
+    if not coordinates:
+        raise ValueError("Walking route had no coordinates.")
+    return {
+        "coordinates": coordinates,
+        "distance_m": props.get("distance"),
+        "time_s": props.get("time"),
+        "geojson": route,
+    }
 
 
-def main():
+def routePlaces(start: dict, end: dict) -> dict:
+    return route_waypoints([start, end])
+
+
+def main() -> None:
     try:
-        location = input("Enter starting location: ")
-        start = geocode(location)
-
-        location2 = input("Enter destination: ")
-        end = geocode(location2)
-
-        routePlaces(start, end)
-
+        start = geocode(input("Enter starting location: "))
+        print(f"Place found: {start['name']}")
+        end = geocode(input("Enter destination: "))
+        print(f"Place found: {end['name']}")
+        route = routePlaces(start, end)
+        print(f"Walk: {route['distance_m']} m, {route['time_s']} s, {len(route['coordinates'])} points")
     except (requests.exceptions.RequestException, ValueError, KeyError) as error:
         print(f"Error: {error}")
 
 
 if __name__ == "__main__":
     main()
-
-

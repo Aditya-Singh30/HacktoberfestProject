@@ -11,6 +11,8 @@ export default defineConfig({
       "/ask": "http://127.0.0.1:8000",
       "/health": "http://127.0.0.1:8000",
       "/buildings": "http://127.0.0.1:8000",
+      "/geocode": "http://127.0.0.1:8000",
+      "/route": "http://127.0.0.1:8000",
     },
   },
 });

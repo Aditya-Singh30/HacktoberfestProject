@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import AddEvent from "./components/AddEvent";
 import AddSchedule from "./components/AddSchedule";
 import AskSteamLine from "./components/AskSteamLine";
@@ -11,12 +11,19 @@ import { newId, withGaps } from "./lib/walking";
 const STORAGE_KEY = "steamline-events-v2";
 const byCode = Object.fromEntries(buildings.map((b) => [b.code, b]));
 
-function todayIso() {
-  return new Date().toISOString().slice(0, 10);
+function planningDay() {
+  const date = new Date();
+  const weekday = date.getDay();
+  if (weekday === 0) date.setDate(date.getDate() + 1);
+  if (weekday === 6) date.setDate(date.getDate() + 2);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
 }
 
 export default function App() {
-  const [day, setDay] = useState(todayIso());
+  const [day, setDay] = useState(planningDay());
   const [events, setEvents] = useState(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
@@ -39,6 +46,14 @@ export default function App() {
   function addEvent(ev) {
     setEvents((rows) => [...rows, { ...ev, id: ev.id || newId(), date: ev.date || day }]);
   }
+
+  const locateEvent = useCallback((id, found) => {
+    setEvents((rows) =>
+      rows.map((row) =>
+        row.id === id ? { ...row, lat: found.lat, lon: found.lon, location: row.location || found.name } : row,
+      ),
+    );
+  }, []);
 
   return (
     <div className="min-h-screen bg-ink text-cream">
@@ -111,7 +126,7 @@ export default function App() {
               events={dayEvents}
               onRemove={(id) => setEvents((rows) => rows.filter((ev) => ev.id !== id))}
             />
-            <MapView events={dayEvents} />
+            <MapView events={dayEvents} onLocate={locateEvent} />
           </div>
         </main>
       </div>

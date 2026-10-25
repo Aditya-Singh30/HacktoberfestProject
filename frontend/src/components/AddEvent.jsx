@@ -40,7 +40,7 @@ export default function AddEvent({ day, onConfirm }) {
         <input type="file" accept="image/png,image/jpeg,image/webp" className="mt-1 block w-full text-xs text-cream" onChange={(event) => setFile(event.target.files?.[0] || null)} />
       </label>
       <button type="button" disabled={!canSubmit} onClick={extract} className="mt-2 w-full rounded-md bg-orange px-3 py-2 text-sm font-semibold text-ink hover:bg-orange-hot disabled:cursor-not-allowed disabled:opacity-60">
-        {loading ? "Gemma is reading the post…" : "Extract with Gemma 4"}
+        {loading ? "Reading the post…" : "Extract event"}
       </button>
       {error && <p className="mt-2 text-xs text-[#ffb4a2]">{error}</p>}
       {notes.map((note) => <p key={note} className="mt-1 text-xs text-tan-deep">{note}</p>)}

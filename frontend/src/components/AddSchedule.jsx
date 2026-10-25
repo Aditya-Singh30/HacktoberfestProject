@@ -15,16 +15,12 @@ export default function AddSchedule({ day, onConfirm }) {
   async function extract() {
     setError("");
     setNotes([]);
-    if (isWeekend) {
-      setError("Classes meet Monday through Friday. Pick a weekday, or add weekend items in the event form below.");
-      return;
-    }
     setLoading(true);
     try {
       const data = await postJson("/extract/schedule", { text, date: day });
       const events = (data.events || []).map((event) => ({ ...event, id: newId() }));
       setNotes(data.warnings || []);
-      if (!events.length) throw new Error("No classes found for this weekday. Check the pasted schedule.");
+      if (!events.length) throw new Error("No classes found in that paste. Check times, days, and building codes.");
       setPending(events);
     } catch (err) {
       setError(err.message);
@@ -37,10 +33,10 @@ export default function AddSchedule({ day, onConfirm }) {
     <section>
       <h2 className="mb-2 font-serif text-lg text-tan">Add schedule</h2>
       <p className="mb-2 text-xs text-tan-deep">Paste Brightspace / registrar text</p>
-      {isWeekend && <p className="mb-2 text-xs text-tan-deep">Classes meet Monday through Friday. Add weekend events in the event form below.</p>}
+      {isWeekend && <p className="mb-2 text-xs text-tan-deep">This date is a weekend. Extraction still runs; classes that meet on weekdays are shown so you can review them.</p>}
       <textarea className="h-40 w-full rounded-lg border border-tan-deep/30 bg-ink p-2 text-sm text-cream" value={text} onChange={(event) => setText(event.target.value)} />
       <button type="button" disabled={loading || !text.trim()} onClick={extract} className="mt-2 w-full rounded-md bg-orange px-3 py-2 text-sm font-semibold text-ink hover:bg-orange-hot disabled:cursor-not-allowed disabled:opacity-60">
-        {loading ? "Gemma is reading your schedule…" : "Extract with Gemma 4"}
+        {loading ? "Reading your schedule…" : "Extract schedule"}
       </button>
       {error && <p className="mt-2 text-xs text-[#ffb4a2]">{error}</p>}
       {notes.map((note) => <p key={note} className="mt-1 text-xs text-tan-deep">{note}</p>)}

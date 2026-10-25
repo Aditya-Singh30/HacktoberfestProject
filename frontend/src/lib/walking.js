@@ -12,9 +12,16 @@ export function haversineM(lat1, lon1, lat2, lon2) {
   return 2 * r * Math.asin(Math.sqrt(a));
 }
 
+export function pointFor(event, buildingsByCode) {
+  if (event?.lat != null && event?.lon != null) {
+    return { code: event.building, lat: event.lat, lon: event.lon };
+  }
+  return buildingsByCode?.[event?.building] || null;
+}
+
 export function walkMinutes(fromB, toB) {
   if (!fromB || !toB) return null;
-  if (fromB.code === toB.code) return 2;
+  if (fromB.code && toB.code && fromB.code === toB.code) return 2;
   const meters = haversineM(fromB.lat, fromB.lon, toB.lat, toB.lon);
   return Math.max(2, Math.round(meters / WALK_M_PER_MIN));
 }
@@ -41,10 +48,7 @@ export function withGaps(events, buildingsByCode) {
     }
     const prev = sorted[i - 1];
     const gap = minutesBetween(prev.end, ev.start);
-    const walk = walkMinutes(
-      buildingsByCode[prev.building],
-      buildingsByCode[ev.building],
-    );
+    const walk = walkMinutes(pointFor(prev, buildingsByCode), pointFor(ev, buildingsByCode));
     return {
       ...ev,
       gapMin: gap,
