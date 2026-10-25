@@ -1,9 +1,8 @@
-<<<<<<< HEAD
-Boilermaker Map 
+# Boilermaker Map 
 
 An interactive campus map that helps Purdue students visualize their class schedules geographically.
 
-Overview
+## Overview
 
 Boilermaker Map is a web application designed to help Purdue University students organize and visualize their classes on an interactive map of the West Lafayette campus.
 
@@ -11,7 +10,7 @@ Using the Geoapify mapping API, the application displays campus locations and al
 
 Instead of relying solely on a traditional timetable, students can see where their classes take place and understand how their academic schedule fits into the physical campus.
 
-Features
+## Features
 
 Interactive Campus Map: Explore Purdue University's West Lafayette campus using Geoapify map tiles.
 
@@ -99,4 +98,5 @@ Walking time is straight-line distance ÷ **80 m/min**. Gap badges are green (`1
 ## License
 
 MIT
->>>>>>> 4e14101 (small changes)
+Geoapify
+Folium
