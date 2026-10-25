@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
+    
+            <meta name="viewport" content="width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <style>
+                #map_d0495b78c04260a9c06dd7f8bf26e0e3 {
+                    position: relative;
+                    width: 100.0%;
+                    height: 100.0%;
+                    left: 0.0%;
+                    top: 0.0%;
+                }
+                .leaflet-container { font-size: 1rem; }
+            </style>
+
+            <style>html, body {
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            </style>
+
+            <style>#map {
+                position:absolute;
+                top:0;
+                bottom:0;
+                right:0;
+                left:0;
+                }
+            </style>
+
+            <script>
+                L_NO_TOUCH = false;
+                L_DISABLE_3D = false;
+            </script>
+
+        
+</head>
+<body>
+    
+    
+            <div class="folium-map" id="map_d0495b78c04260a9c06dd7f8bf26e0e3" ></div>
+        
+</body>
+<script>
+    
+    
+            var map_d0495b78c04260a9c06dd7f8bf26e0e3 = L.map(
+                "map_d0495b78c04260a9c06dd7f8bf26e0e3",
+                {
+                    center: [40.4262179, -86.91298835],
+                    crs: L.CRS.EPSG3857,
+                    ...{
+  "zoom": 15,
+  "zoomControl": true,
+  "preferCanvas": false,
+}
+
+                }
+            );
+
+            
+
+        
+    
+            var tile_layer_de4400bf8694bd3f3a08842a04c09244 = L.tileLayer(
+                "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+                {
+  "minZoom": 0,
+  "maxZoom": 19,
+  "maxNativeZoom": 19,
+  "noWrap": false,
+  "attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors",
+  "subdomains": "abc",
+  "detectRetina": false,
+  "tms": false,
+  "opacity": 1,
+}
+
+            );
+        
+    
+            tile_layer_de4400bf8694bd3f3a08842a04c09244.addTo(map_d0495b78c04260a9c06dd7f8bf26e0e3);
+        
+    
+            var marker_b708f2f13b62a44f78c8b0d163ebfefb = L.marker(
+                [40.4250578, -86.9127431],
+                {
+}
+            ).addTo(map_d0495b78c04260a9c06dd7f8bf26e0e3);
+        
+    
+        var popup_0889cd9c7f74a0eff5a8faaf9d54093a = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_6401a7907f98962a72f60cbda390bf21 = $(`<div id="html_6401a7907f98962a72f60cbda390bf21" style="width: 100.0%; height: 100.0%;">Stewart Center (STEW), 128 Memorial Mall Drive, West Lafayette, IN 47907, United States of America</div>`)[0];
+                popup_0889cd9c7f74a0eff5a8faaf9d54093a.setContent(html_6401a7907f98962a72f60cbda390bf21);
+            
+        
+
+        marker_b708f2f13b62a44f78c8b0d163ebfefb.bindPopup(popup_0889cd9c7f74a0eff5a8faaf9d54093a)
+        ;
+
+        
+    
+    
+            marker_b708f2f13b62a44f78c8b0d163ebfefb.bindTooltip(
+                `<div>
+                     Start
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_715704188d59e74a5cc25055a1127497 = L.marker(
+                [40.427378, -86.9132336],
+                {
+}
+            ).addTo(map_d0495b78c04260a9c06dd7f8bf26e0e3);
+        
+    
+        var popup_e6ed0fc28ccfa7585c6d281144c4c929 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_5bf24b80042005a10abd31e3ccaaeaa1 = $(`<div id="html_5bf24b80042005a10abd31e3ccaaeaa1" style="width: 100.0%; height: 100.0%;">Wilmeth Active Learning Center (WALC), Central Drive, West Lafayette, IN 46906, United States of America</div>`)[0];
+                popup_e6ed0fc28ccfa7585c6d281144c4c929.setContent(html_5bf24b80042005a10abd31e3ccaaeaa1);
+            
+        
+
+        marker_715704188d59e74a5cc25055a1127497.bindPopup(popup_e6ed0fc28ccfa7585c6d281144c4c929)
+        ;
+
+        
+    
+    
+            marker_715704188d59e74a5cc25055a1127497.bindTooltip(
+                `<div>
+                     Destination
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            map_d0495b78c04260a9c06dd7f8bf26e0e3.fitBounds(
+                [[[-86.912674, 40.42544], [-86.912672, 40.425323]]],
+                {}
+            );
+        
+</script>
+</html>
