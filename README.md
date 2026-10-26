@@ -87,13 +87,7 @@ frontend/src/
 
 Walking time is straight-line distance ÷ **80 m/min**. Gap badges are green (`12 min gap, 5 min walk`) or red (`Tight: 4 min gap, 9 min walk`).
 
-## Demo script (~90s)
-
-1. Problem: schedule in Brightspace, events in Instagram, directions in Maps.
-2. Paste a schedule → Gemma fills editable cards → confirm → timeline sorts.
-3. Upload a flyer screenshot (or paste a caption) → event joins the line.
-4. Point at the red badge: “Tight: 4 min gap, 8 min walk” (Armstrong lab → Beering lecture).
-5. Close: “All of this runs on Gemma 4 on your laptop. Your schedule never leaves your machine.”
+## Made for Hacktoberfest Hackathon. Held by Hello World @ Purdue University
 
 ## License
 
